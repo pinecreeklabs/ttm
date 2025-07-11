@@ -368,6 +368,7 @@ export default function Home() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [, setSelectedAgent] = useState<PremiumAgent | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
+  const [allowContinuousChat, setAllowContinuousChat] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const conversation = useConversation({
@@ -421,7 +422,7 @@ export default function Home() {
       // Trial ended
       setIsTrialActive(false);
       setShowPaywall(true);
-      conversation.endSession();
+      // Don't end session, allow continued chatting
     }
 
     return () => {
@@ -464,6 +465,7 @@ export default function Home() {
     setTimeLeft(30);
     setShowPaywall(false);
     setHasStarted(false);
+    setAllowContinuousChat(false);
   };
 
   return (
@@ -480,6 +482,8 @@ export default function Home() {
               <p className="text-sm text-muted-foreground">
                 {isTrialActive
                   ? "Free trial active"
+                  : allowContinuousChat
+                  ? "Continue chatting"
                   : "Connect with specialized AI experts"}
               </p>
             </div>
@@ -705,7 +709,10 @@ export default function Home() {
       {/* Paywall Modal */}
       <PaywallModal
         isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
+        onClose={() => {
+          setShowPaywall(false);
+          setAllowContinuousChat(true);
+        }}
         agents={PREMIUM_AGENTS}
         onSelectAgent={handleSelectAgent}
       />
